@@ -4,5 +4,9 @@
   "rules": {
     "prettier/prettier": ["error"]
   },
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2018
+  },
   "ignorePatterns": ["src/**/*.test.ts"]
 }
