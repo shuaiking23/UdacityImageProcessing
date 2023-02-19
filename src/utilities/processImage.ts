@@ -11,7 +11,7 @@ const resizeImage = (
   const resizer = sharp(inputImage)
     .resize({
       height: height,
-      width: width
+      width: width,
     })
     .toFile(outputImage);
   return resizer;

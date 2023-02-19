@@ -1,5 +1,5 @@
 import express from 'express';
-const {resizeImage} = require('../../utilities/processImage.ts');
+const { resizeImage } = require('../../utilities/processImage.ts');
 const path = require('path');
 const images = express.Router();
 
@@ -33,18 +33,16 @@ images.get('/resize', (req, res) => {
   const testFile = path.resolve(`${__dirname}\\${imagesPath}fjord.jpg`);
   console.log(__dirname);
   console.log(testFile);
-  const html = `<img src='file:///${testFile}'></img>`
+  const html = `<img src='file:///${testFile}'></img>`;
   res.send(html);
 
   async function resize(fileName: string, height: number, width: number) {
     try {
       await resizeImage(fileName, height, width);
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       res.send('Image processing failed');
     }
-    
   }
 
   //resize(req.query.fileName, req.queryheight ,req.width)
