@@ -1,9 +1,11 @@
-'use strict';
+import express from 'express';
+import routes from './routes/index'
 
-var myName = 'Francis';
+const app = express();
+const port = 3001;
 
-var hello = function (userName: string) {
-  return 'hello, ' + userName;
-};
+app.use('/api', routes);
 
-console.log(hello(myName));
+app.listen(port, () => {
+  console.log(`Server started at localhost:${port}`);
+});

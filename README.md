@@ -1,1 +1,3 @@
 "# UdacityImageProcessing" 
+
+node build/.
