@@ -1,13 +1,41 @@
 import express from 'express';
-const { resizeImage } = require('../../utilities/processImage.ts');
+
+import * as appConfigs from '../../utilities/appConfigs';
+const { resizeImage, fileExists } = require('../../utilities/processImage.ts');
 const path = require('path');
 const images = express.Router();
 
-const imagesPath = '../../../images/';
-const thumbsPath = '../../../images/thumbs/';
+const fullURL = `${appConfigs.HOSTNAME}:${appConfigs.PORT}`;
 
 images.get('/', (req, res) => {
   res.send('Images route');
+});
+
+images.get('/view', (req, res) => {
+  const queryData = req.query;
+  const fileName = queryData.filename;
+  var html = '';
+
+  // Input validation
+  if (fileName === undefined) {
+    res.send('Missing Filename');
+  }
+
+  if (fileExists(fileName, false)) {
+    console.log('Found Image');
+    const imagePath = `${appConfigs.STATIC_URL_PART}${appConfigs.IMAGES_URL_PART}${fileName}.jpg`;
+    html = `<img src='../..${imagePath}' alt='image'></img>`;
+  }
+  else if (fileExists(fileName, true)) {
+    console.log('Found Thumb');
+    const imagePath = `${appConfigs.STATIC_URL_PART}${appConfigs.THUMBS_URL_PART}${fileName}.jpg`;
+    html = `<img src='../..${imagePath}' alt='image'></img>`;
+  }
+  else {
+    res.send('File not found');
+  }
+  
+  res.send(html);
 });
 
 images.get('/resize', (req, res) => {
@@ -28,13 +56,18 @@ images.get('/resize', (req, res) => {
     res.send('Missing width');
   }
 
+  const imagePath = `${appConfigs.STATIC_URL}${appConfigs.IMAGES_URL_PART}${fileName}.jpg`;
+
+  if (!fileExists(imagePath)) {
+    res.send('File not found');
+  }
+
   console.log('Input validation passed');
   */
-  const testFile = path.resolve(`${__dirname}\\${imagesPath}fjord.jpg`);
-  console.log(__dirname);
-  console.log(testFile);
-  const html = `<img src='file:///${testFile}'></img>`;
-  res.send(html);
+  const imagePath = `${appConfigs.STATIC_URL_PART}${appConfigs.IMAGES_URL_PART}${fileName}.jpg`;
+  console.log(imagePath);
+  const html = `<img src='../..${imagePath}' alt='image'></img>`;
+  //res.send(html);
 
   async function resize(fileName: string, height: number, width: number) {
     try {
@@ -46,7 +79,7 @@ images.get('/resize', (req, res) => {
   }
 
   //resize(req.query.fileName, req.queryheight ,req.width)
-  res.sendFile(testFile);
+  res.sendFile(imagePath);
 });
 
 export default images;

@@ -1,15 +1,17 @@
 import express from 'express';
 import routes from './routes/index';
+import * as appConfigs from './utilities/appConfigs';
 
 const app = express();
-const port = 3000;
+const fullURL = `${appConfigs.HOSTNAME}:${appConfigs.PORT}`;
 
 app.use('/api', routes);
+app.use(`${appConfigs.STATIC_URL_PART}`, express.static('assets'));
 
 app.get('*', function (req, res) {
   res.status(404).send('Page Not Found!');
 });
 
-app.listen(port, () => {
-  console.log(`Server started at localhost:${port}`);
+app.listen(appConfigs.PORT, () => {
+  console.log(`Server started at ${fullURL}`);
 });
