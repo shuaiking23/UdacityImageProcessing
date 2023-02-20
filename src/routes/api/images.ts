@@ -1,85 +1,104 @@
 import express from 'express';
 
 import * as appConfigs from '../../utilities/appConfigs';
-const { resizeImage, fileExists } = require('../../utilities/processImage.ts');
+const { resizeImage, fileExists } = require('../../utilities/processImage');
 const path = require('path');
 const images = express.Router();
-
-const fullURL = `${appConfigs.HOSTNAME}:${appConfigs.PORT}`;
+const fileExt = '.jpg';
 
 images.get('/', (req, res) => {
   res.send('Images route');
 });
 
-images.get('/view', (req, res) => {
+images.get('/view', (req: express.Request, res: express.Response) => {
   const queryData = req.query;
-  const fileName = queryData.filename;
-  var html = '';
+  const fileName: string = queryData.filename as string;
+  let html: string = '';
 
   // Input validation
   if (fileName === undefined) {
-    res.send('Missing Filename');
+    res.status(400).send('Missing Filename');
+    return;
   }
 
   if (fileExists(fileName, false)) {
     console.log('Found Image');
-    const imagePath = `${appConfigs.STATIC_URL_PART}${appConfigs.IMAGES_URL_PART}${fileName}.jpg`;
-    html = `<img src='../..${imagePath}' alt='image'></img>`;
-  }
-  else if (fileExists(fileName, true)) {
+    const imagePath: string =
+      appConfigs.STATIC_URL_PART +
+      appConfigs.IMAGES_URL_PART +
+      fileName +
+      fileExt;
+    html = `<center><img src='${imagePath}' alt='image'></img></center>`;
+  } else if (fileExists(fileName, true)) {
     console.log('Found Thumb');
-    const imagePath = `${appConfigs.STATIC_URL_PART}${appConfigs.THUMBS_URL_PART}${fileName}.jpg`;
-    html = `<img src='../..${imagePath}' alt='image'></img>`;
+    const imagePath: string =
+      appConfigs.STATIC_URL_PART +
+      appConfigs.THUMBS_URL_PART +
+      fileName +
+      fileExt;
+    html = `<center><img src='${imagePath}' alt='image'></img></center>`;
+  } else {
+    res.status(400).send('File not found');
+    return;
   }
-  else {
-    res.send('File not found');
-  }
-  
+
   res.send(html);
+  return;
 });
 
-images.get('/resize', (req, res) => {
+images.get('/resize', (req: express.Request, res: express.Response) => {
   const queryData = req.query;
-  const fileName = queryData.filename;
-  const height = queryData.height;
-  const width = queryData.width;
+  console.log(queryData);
+  const fileName: string = queryData.filename as unknown as string;
+  const height: number = parseInt(queryData.height as string);
+  const width: number = parseInt(queryData.width as string);
 
   // Input validation
-  /*
+  console.log('Checking Params...');
+  console.log(typeof height);
+  console.log(width);
   if (fileName === undefined) {
-    res.send('Missing Filename');
-  }
-  else if (height === undefined) {
-    res.send('Missing height');
-  }
-  else if (width === undefined) {
-    res.send('Missing width');
+    res.status(400).send('Missing Filename');
+    return;
+  } else if (height === undefined) {
+    res.status(400).send('Missing height');
+    return;
+  } else if (width === undefined) {
+    res.status(400).send('Missing width');
+    return;
+  } else if (isNaN(height)) {
+    res.status(400).send('Invalid height');
+    return;
+  } else if (isNaN(width)) {
+    res.status(400).send('Invalid width');
+    return;
   }
 
-  const imagePath = `${appConfigs.STATIC_URL}${appConfigs.IMAGES_URL_PART}${fileName}.jpg`;
-
-  if (!fileExists(imagePath)) {
-    res.send('File not found');
+  console.log('Looking for file...');
+  if (!fileExists(fileName)) {
+    res.status(400).send('File not found');
+    return;
   }
 
   console.log('Input validation passed');
-  */
-  const imagePath = `${appConfigs.STATIC_URL_PART}${appConfigs.IMAGES_URL_PART}${fileName}.jpg`;
-  console.log(imagePath);
-  const html = `<img src='../..${imagePath}' alt='image'></img>`;
-  //res.send(html);
 
   async function resize(fileName: string, height: number, width: number) {
     try {
-      await resizeImage(fileName, height, width);
+      console.log(`Params = ${fileName}, ${height}, ${width}`);
+      const outputImage = await resizeImage(fileName, height, width);
+      const imageDisplayPath = outputImage.split(process.cwd())[1];
+      console.log(`outputImage ${outputImage}`);
+      const html = `<center><img src='${imageDisplayPath}' alt='image'></img></center>`;
+      res.status(200).send(html);
+      return;
     } catch (error) {
       console.log(error);
-      res.send('Image processing failed');
+      res.status(400).send('Image processing failed');
+      return;
     }
   }
 
-  //resize(req.query.fileName, req.queryheight ,req.width)
-  res.sendFile(imagePath);
+  resize(fileName, height, width);
 });
 
 export default images;

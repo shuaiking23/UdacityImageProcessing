@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,60 +63,108 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var resizeImage = require('../../utilities/processImage.ts').resizeImage;
+var appConfigs = __importStar(require("../../utilities/appConfigs"));
+var _a = require('../../utilities/processImage'), resizeImage = _a.resizeImage, fileExists = _a.fileExists;
 var path = require('path');
 var images = express_1.default.Router();
-var imagesPath = '../../../images/';
-var thumbsPath = '../../../images/thumbs/';
+var fileExt = '.jpg';
 images.get('/', function (req, res) {
     res.send('Images route');
 });
-images.get('/resize', function (req, res) {
+images.get('/view', function (req, res) {
     var queryData = req.query;
     var fileName = queryData.filename;
-    var height = queryData.height;
-    var width = queryData.width;
+    var html = '';
     // Input validation
-    /*
     if (fileName === undefined) {
-      res.send('Missing Filename');
+        res.status(400).send('Missing Filename');
+        return;
+    }
+    if (fileExists(fileName, false)) {
+        console.log('Found Image');
+        var imagePath = appConfigs.STATIC_URL_PART +
+            appConfigs.IMAGES_URL_PART +
+            fileName +
+            fileExt;
+        html = "<center><img src='".concat(imagePath, "' alt='image'></img></center>");
+    }
+    else if (fileExists(fileName, true)) {
+        console.log('Found Thumb');
+        var imagePath = appConfigs.STATIC_URL_PART +
+            appConfigs.THUMBS_URL_PART +
+            fileName +
+            fileExt;
+        html = "<center><img src='".concat(imagePath, "' alt='image'></img></center>");
+    }
+    else {
+        res.status(400).send('File not found');
+        return;
+    }
+    res.send(html);
+    return;
+});
+images.get('/resize', function (req, res) {
+    var queryData = req.query;
+    console.log(queryData);
+    var fileName = queryData.filename;
+    var height = parseInt(queryData.height);
+    var width = parseInt(queryData.width);
+    // Input validation
+    console.log('Checking Params...');
+    console.log(typeof height);
+    console.log(width);
+    if (fileName === undefined) {
+        res.status(400).send('Missing Filename');
+        return;
     }
     else if (height === undefined) {
-      res.send('Missing height');
+        res.status(400).send('Missing height');
+        return;
     }
     else if (width === undefined) {
-      res.send('Missing width');
+        res.status(400).send('Missing width');
+        return;
     }
-  
+    else if (isNaN(height)) {
+        res.status(400).send('Invalid height');
+        return;
+    }
+    else if (isNaN(width)) {
+        res.status(400).send('Invalid width');
+        return;
+    }
+    console.log('Looking for file...');
+    if (!fileExists(fileName)) {
+        res.status(400).send('File not found');
+        return;
+    }
     console.log('Input validation passed');
-    */
-    var testFile = path.resolve("".concat(__dirname, "\\").concat(imagesPath, "fjord.jpg"));
-    console.log(__dirname);
-    console.log(testFile);
-    var html = "<img src='file:///".concat(testFile, "'></img>");
-    res.send(html);
     function resize(fileName, height, width) {
         return __awaiter(this, void 0, void 0, function () {
-            var error_1;
+            var outputImage, imageDisplayPath, html, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
+                        console.log("Params = ".concat(fileName, ", ").concat(height, ", ").concat(width));
                         return [4 /*yield*/, resizeImage(fileName, height, width)];
                     case 1:
-                        _a.sent();
-                        return [3 /*break*/, 3];
+                        outputImage = _a.sent();
+                        imageDisplayPath = outputImage.split(process.cwd())[1];
+                        console.log("outputImage ".concat(outputImage));
+                        html = "<center><img src='".concat(imageDisplayPath, "' alt='image'></img></center>");
+                        res.status(200).send(html);
+                        return [2 /*return*/];
                     case 2:
                         error_1 = _a.sent();
                         console.log(error_1);
-                        res.send('Image processing failed');
-                        return [3 /*break*/, 3];
+                        res.status(400).send('Image processing failed');
+                        return [2 /*return*/];
                     case 3: return [2 /*return*/];
                 }
             });
         });
     }
-    //resize(req.query.fileName, req.queryheight ,req.width)
-    res.sendFile(testFile);
+    resize(fileName, height, width);
 });
 exports.default = images;
