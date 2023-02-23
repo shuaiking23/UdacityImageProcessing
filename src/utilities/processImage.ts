@@ -1,17 +1,15 @@
 import fs from 'fs';
-import * as appConfigs from '../utilities/appConfigs';
+import * as cfg from '../utilities/appConfigs';
 const sharp = require('sharp');
 const path = require('path');
-
-const fileExt = '.jpg';
 
 const resizeImage = async (fileName: string, height: number, width: number) => {
   console.log('Gathering file paths.');
   const fullImagePath =
-    appConfigs.ASSET_PATH + appConfigs.IMAGES_URL_PART + fileName + fileExt;
-  const thumbFileName = `${fileName}_thumbs_${height.toString()}_${width.toString()}`;
+    cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
+  const thumbFileName = `${fileName}_thumb_${height.toString()}_${width.toString()}`;
   const outputImage = path.resolve(
-    appConfigs.ASSET_PATH + appConfigs.THUMBS_URL_PART + thumbFileName + fileExt
+    cfg.ASSET_PATH + cfg.THUMBS_URL_PART + thumbFileName + cfg.FILE_EXT
   );
 
   if (!fileExists(thumbFileName, true)) {
@@ -31,18 +29,27 @@ const resizeImage = async (fileName: string, height: number, width: number) => {
 
 const fileExists = (fileName: string, processed: boolean = false): boolean => {
   var fullImagePath =
-    appConfigs.ASSET_PATH + appConfigs.IMAGES_URL_PART + fileName + fileExt;
+    cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
   if (processed) {
     fullImagePath =
-      appConfigs.ASSET_PATH + appConfigs.THUMBS_URL_PART + fileName + fileExt;
+      cfg.ASSET_PATH + cfg.THUMBS_URL_PART + fileName + cfg.FILE_EXT;
   }
   console.log(`Attempt to access ${path.resolve(fullImagePath)}`);
   return fs.existsSync(path.resolve(fullImagePath));
 };
 
-//resizeImage('fjord', 50, 50);
+const removeThumb = (fileName: string) => {
+  const imageDir = path.resolve(
+    cfg.ASSET_PATH + cfg.THUMBS_URL_PART + fileName + cfg.FILE_EXT
+  );
+  fs.unlink(imageDir, (err) => {
+    if (err) throw err;
+    console.log(`${imageDir} removed.`);
+  });
+};
 
 module.exports = {
   resizeImage,
   fileExists,
+  removeThumb,
 };

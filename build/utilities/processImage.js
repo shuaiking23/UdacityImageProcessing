@@ -63,19 +63,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = __importDefault(require("fs"));
-var appConfigs = __importStar(require("../utilities/appConfigs"));
+var cfg = __importStar(require("../utilities/appConfigs"));
 var sharp = require('sharp');
 var path = require('path');
-var fileExt = '.jpg';
 var resizeImage = function (fileName, height, width) { return __awaiter(void 0, void 0, void 0, function () {
     var fullImagePath, thumbFileName, outputImage;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 console.log('Gathering file paths.');
-                fullImagePath = appConfigs.ASSET_PATH + appConfigs.IMAGES_URL_PART + fileName + fileExt;
+                fullImagePath = cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
                 thumbFileName = "".concat(fileName, "_thumbs_").concat(height.toString(), "_").concat(width.toString());
-                outputImage = path.resolve(appConfigs.ASSET_PATH + appConfigs.THUMBS_URL_PART + thumbFileName + fileExt);
+                outputImage = path.resolve(cfg.ASSET_PATH + cfg.THUMBS_URL_PART + thumbFileName + cfg.FILE_EXT);
                 if (!!fileExists(thumbFileName, true)) return [3 /*break*/, 2];
                 console.log('Resizing...');
                 return [4 /*yield*/, sharp(fullImagePath)
@@ -96,16 +95,24 @@ var resizeImage = function (fileName, height, width) { return __awaiter(void 0, 
 }); };
 var fileExists = function (fileName, processed) {
     if (processed === void 0) { processed = false; }
-    var fullImagePath = appConfigs.ASSET_PATH + appConfigs.IMAGES_URL_PART + fileName + fileExt;
+    var fullImagePath = cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
     if (processed) {
         fullImagePath =
-            appConfigs.ASSET_PATH + appConfigs.THUMBS_URL_PART + fileName + fileExt;
+            cfg.ASSET_PATH + cfg.THUMBS_URL_PART + fileName + cfg.FILE_EXT;
     }
     console.log("Attempt to access ".concat(path.resolve(fullImagePath)));
     return fs_1.default.existsSync(path.resolve(fullImagePath));
 };
-//resizeImage('fjord', 50, 50);
+var removeThumb = function (fileName) {
+    var imageDir = path.resolve(cfg.ASSET_PATH + cfg.THUMBS_URL_PART + fileName + cfg.FILE_EXT);
+    fs_1.default.unlink(imageDir, function (err) {
+        if (err)
+            throw err;
+        console.log("".concat(imageDir, " removed."));
+    });
+};
 module.exports = {
     resizeImage: resizeImage,
     fileExists: fileExists,
+    removeThumb: removeThumb,
 };

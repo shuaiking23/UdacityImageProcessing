@@ -7,7 +7,8 @@ var express_1 = __importDefault(require("express"));
 var images_1 = __importDefault(require("./api/images"));
 var routes = express_1.default.Router();
 routes.get('/', function (req, res) {
-    res.send('Main API route');
+    var html = "<pre>Image Processing API\n  View Image: /images/view?filename={}\n  Resize Image: /images/resize?filename={}&height={}&width={}</pre>\n\n  Filenames:\n  encenadaport\n  fjord\n  icelandwaterfall\n  palmtunnel\n  santamonica";
+    res.status(200).send(html);
 });
 routes.use('/images', images_1.default);
 exports.default = routes;

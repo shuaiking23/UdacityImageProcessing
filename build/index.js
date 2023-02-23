@@ -28,14 +28,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var index_1 = __importDefault(require("./routes/index"));
-var appConfigs = __importStar(require("./utilities/appConfigs"));
+var cfg = __importStar(require("./utilities/appConfigs"));
 var app = (0, express_1.default)();
-var fullURL = "".concat(appConfigs.HOSTNAME, ":").concat(appConfigs.PORT);
+var fullURL = "".concat(cfg.HOSTNAME, ":").concat(cfg.PORT);
 app.use('/api', index_1.default);
-app.use("".concat(appConfigs.STATIC_URL_PART), express_1.default.static('assets'));
+app.use("".concat(cfg.STATIC_URL_PART), express_1.default.static('assets'));
 app.get('*', function (req, res) {
     res.status(404).send('Page Not Found!');
 });
-app.listen(appConfigs.PORT, function () {
+app.listen(cfg.PORT, function () {
     console.log("Server started at ".concat(fullURL));
 });
+exports.default = app;

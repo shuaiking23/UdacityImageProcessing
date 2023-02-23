@@ -63,15 +63,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var appConfigs = __importStar(require("../../utilities/appConfigs"));
-var _a = require('../../utilities/processImage'), resizeImage = _a.resizeImage, fileExists = _a.fileExists;
+var cfg = __importStar(require("../../utilities/appConfigs"));
+var _a = require('../../utilities/processImage'), resizeImage = _a.resizeImage, fileExists = _a.fileExists, removeThumb = _a.removeThumb;
 var path = require('path');
-var images = express_1.default.Router();
+var route = express_1.default.Router();
 var fileExt = '.jpg';
-images.get('/', function (req, res) {
-    res.send('Images route');
-});
-images.get('/view', function (req, res) {
+route.get('/view', function (req, res) {
     var queryData = req.query;
     var fileName = queryData.filename;
     var html = '';
@@ -82,28 +79,22 @@ images.get('/view', function (req, res) {
     }
     if (fileExists(fileName, false)) {
         console.log('Found Image');
-        var imagePath = appConfigs.STATIC_URL_PART +
-            appConfigs.IMAGES_URL_PART +
-            fileName +
-            fileExt;
+        var imagePath = cfg.STATIC_URL_PART + cfg.IMAGES_URL_PART + fileName + fileExt;
         html = "<center><img src='".concat(imagePath, "' alt='image'></img></center>");
     }
     else if (fileExists(fileName, true)) {
         console.log('Found Thumb');
-        var imagePath = appConfigs.STATIC_URL_PART +
-            appConfigs.THUMBS_URL_PART +
-            fileName +
-            fileExt;
+        var imagePath = cfg.STATIC_URL_PART + cfg.THUMBS_URL_PART + fileName + fileExt;
         html = "<center><img src='".concat(imagePath, "' alt='image'></img></center>");
     }
     else {
         res.status(400).send('File not found');
         return;
     }
-    res.send(html);
+    res.status(200).send(html);
     return;
 });
-images.get('/resize', function (req, res) {
+route.get('/resize', function (req, res) {
     var queryData = req.query;
     console.log(queryData);
     var fileName = queryData.filename;
@@ -111,26 +102,24 @@ images.get('/resize', function (req, res) {
     var width = parseInt(queryData.width);
     // Input validation
     console.log('Checking Params...');
-    console.log(typeof height);
-    console.log(width);
     if (fileName === undefined) {
         res.status(400).send('Missing Filename');
         return;
     }
-    else if (height === undefined) {
-        res.status(400).send('Missing height');
+    else if (queryData.height === undefined) {
+        res.status(400).send('Missing Height');
         return;
     }
-    else if (width === undefined) {
-        res.status(400).send('Missing width');
+    else if (queryData.width === undefined) {
+        res.status(400).send('Missing Width');
         return;
     }
     else if (isNaN(height)) {
-        res.status(400).send('Invalid height');
+        res.status(400).send('Invalid Height');
         return;
     }
     else if (isNaN(width)) {
-        res.status(400).send('Invalid width');
+        res.status(400).send('Invalid Width');
         return;
     }
     console.log('Looking for file...');
@@ -139,32 +128,56 @@ images.get('/resize', function (req, res) {
         return;
     }
     console.log('Input validation passed');
-    function resize(fileName, height, width) {
-        return __awaiter(this, void 0, void 0, function () {
-            var outputImage, imageDisplayPath, html, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        console.log("Params = ".concat(fileName, ", ").concat(height, ", ").concat(width));
-                        return [4 /*yield*/, resizeImage(fileName, height, width)];
-                    case 1:
-                        outputImage = _a.sent();
-                        imageDisplayPath = outputImage.split(process.cwd())[1];
-                        console.log("outputImage ".concat(outputImage));
-                        html = "<center><img src='".concat(imageDisplayPath, "' alt='image'></img></center>");
-                        res.status(200).send(html);
-                        return [2 /*return*/];
-                    case 2:
-                        error_1 = _a.sent();
-                        console.log(error_1);
-                        res.status(400).send('Image processing failed');
-                        return [2 /*return*/];
-                    case 3: return [2 /*return*/];
-                }
-            });
+    var resize = function (fileName, height, width) { return __awaiter(void 0, void 0, void 0, function () {
+        var outputImage, imageDisplayPath, html, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    console.log("Params = ".concat(fileName, ", ").concat(height, ", ").concat(width));
+                    return [4 /*yield*/, resizeImage(fileName, height, width)];
+                case 1:
+                    outputImage = _a.sent();
+                    imageDisplayPath = outputImage.split(process.cwd())[1];
+                    console.log("outputImage ".concat(outputImage));
+                    html = "<center><img src='".concat(imageDisplayPath, "' alt='image'></img></center>");
+                    res.status(200).send(html);
+                    return [2 /*return*/];
+                case 2:
+                    error_1 = _a.sent();
+                    console.log(error_1);
+                    res.status(400).send('Image processing failed');
+                    return [2 /*return*/];
+                case 3: return [2 /*return*/];
+            }
         });
-    }
+    }); };
     resize(fileName, height, width);
 });
-exports.default = images;
+route.get('/removethumb', function (req, res) {
+    var queryData = req.query;
+    var fileName = queryData.filename;
+    var html = '';
+    // Input validation
+    if (fileName === undefined) {
+        res.status(400).send('Missing Filename');
+        return;
+    }
+    if (fileExists(fileName, true)) {
+        console.log('Found Thumb');
+        removeThumb(fileName);
+        if (fileExists(fileName, true)) {
+            res.status(400).send("Unable to remove ".concat(fileName));
+            return;
+        }
+        else {
+            res.status(200).send("".concat(fileName, " successfully removed"));
+            return;
+        }
+    }
+    else {
+        res.status(400).send("".concat(fileName, " does not exist"));
+        return;
+    }
+});
+exports.default = route;
