@@ -73,7 +73,7 @@ var resizeImage = function (fileName, height, width) { return __awaiter(void 0, 
             case 0:
                 console.log('Gathering file paths.');
                 fullImagePath = cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
-                thumbFileName = "".concat(fileName, "_thumbs_").concat(height.toString(), "_").concat(width.toString());
+                thumbFileName = "".concat(fileName, "_thumb_").concat(height.toString(), "_").concat(width.toString());
                 outputImage = path.resolve(cfg.ASSET_PATH + cfg.THUMBS_URL_PART + thumbFileName + cfg.FILE_EXT);
                 if (!!fileExists(thumbFileName, true)) return [3 /*break*/, 2];
                 console.log('Resizing...');

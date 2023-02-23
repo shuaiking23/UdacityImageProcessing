@@ -81,7 +81,7 @@ describe('3. Functionality tests', function () {
         var fileName = 'fjord';
         var height = 200;
         var width = 200;
-        var thumbFileName = "".concat(fileName, "_thumbs_").concat(height.toString(), "_").concat(width.toString());
+        var thumbFileName = "".concat(fileName, "_thumb_").concat(height.toString(), "_").concat(width.toString());
         var outputImage = path.resolve(cfg.ASSET_PATH + cfg.THUMBS_URL_PART + thumbFileName + cfg.FILE_EXT);
         it('3.2.1 Test resize', function () { return __awaiter(void 0, void 0, void 0, function () {
             var result, result2;
