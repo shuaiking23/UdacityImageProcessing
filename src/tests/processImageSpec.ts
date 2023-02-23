@@ -27,8 +27,8 @@ describe('3. Functionality tests', () => {
 
   describe('3.2 resizeImage', () => {
     const fileName: string = 'fjord';
-    const height: string = 200;
-    const width: string = 200;
+    const height: number = 200;
+    const width: number = 200;
     const thumbFileName: string = `${fileName}_thumb_${height.toString()}_${width.toString()}`;
     const outputImage: string = path.resolve(
       cfg.ASSET_PATH + cfg.THUMBS_URL_PART + thumbFileName + cfg.FILE_EXT
