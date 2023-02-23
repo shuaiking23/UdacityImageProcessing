@@ -5,10 +5,10 @@ const path = require('path');
 
 const resizeImage = async (fileName: string, height: number, width: number) => {
   console.log('Gathering file paths.');
-  const fullImagePath =
+  const fullImagePath: string =
     cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
-  const thumbFileName = `${fileName}_thumb_${height.toString()}_${width.toString()}`;
-  const outputImage = path.resolve(
+  const thumbFileName: string = `${fileName}_thumb_${height.toString()}_${width.toString()}`;
+  const outputImage: string = path.resolve(
     cfg.ASSET_PATH + cfg.THUMBS_URL_PART + thumbFileName + cfg.FILE_EXT
   );
 
@@ -28,7 +28,7 @@ const resizeImage = async (fileName: string, height: number, width: number) => {
 };
 
 const fileExists = (fileName: string, processed: boolean = false): boolean => {
-  var fullImagePath =
+  var fullImagePath: string =
     cfg.ASSET_PATH + cfg.IMAGES_URL_PART + fileName + cfg.FILE_EXT;
   if (processed) {
     fullImagePath =
@@ -39,7 +39,7 @@ const fileExists = (fileName: string, processed: boolean = false): boolean => {
 };
 
 const removeThumb = (fileName: string) => {
-  const imageDir = path.resolve(
+  const imageDir: string = path.resolve(
     cfg.ASSET_PATH + cfg.THUMBS_URL_PART + fileName + cfg.FILE_EXT
   );
   fs.unlink(imageDir, (err) => {

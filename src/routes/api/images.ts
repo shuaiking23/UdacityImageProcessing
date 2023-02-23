@@ -78,10 +78,10 @@ route.get('/resize', (req: express.Request, res: express.Response) => {
   const resize = async (fileName: string, height: number, width: number) => {
     try {
       console.log(`Params = ${fileName}, ${height}, ${width}`);
-      const outputImage = await resizeImage(fileName, height, width);
-      const imageDisplayPath = outputImage.split(process.cwd())[1];
+      const outputImage: string = await resizeImage(fileName, height, width);
+      const imageDisplayPath: string = outputImage.split(process.cwd())[1];
       console.log(`outputImage ${outputImage}`);
-      const html = `<center><img src='${imageDisplayPath}' alt='image'></img></center>`;
+      const html: string = `<center><img src='${imageDisplayPath}' alt='image'></img></center>`;
       res.status(200).send(html);
       return;
     } catch (error) {
