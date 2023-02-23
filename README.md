@@ -1,12 +1,12 @@
 "# UdacityImageProcessing" 
 
---Files Allowed--
+--JPG Files Available--
 ```
-encenadaport.jpg
-fjord.jpg
-icelandwaterfall.jpg
-palmtunnel.jpg
-santamonica.jpg 
+encenadaport
+fjord
+icelandwaterfall
+palmtunnel
+santamonica
 ```
 
 --Start--
